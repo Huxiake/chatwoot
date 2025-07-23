@@ -226,6 +226,15 @@ export const actions = {
   updateInbox: async ({ commit }, { id, formData = true, ...inboxParams }) => {
     commit(types.default.SET_INBOXES_UI_FLAG, { isUpdating: true });
     try {
+      if (
+        inboxParams.channel &&
+        inboxParams.channel.pre_chat_form_options &&
+        typeof inboxParams.channel.pre_chat_form_options === 'object'
+      ) {
+        inboxParams.channel.pre_chat_form_options = JSON.stringify(
+          inboxParams.channel.pre_chat_form_options
+        );
+      }
       const response = await InboxesAPI.update(
         id,
         formData ? buildInboxData(inboxParams) : inboxParams

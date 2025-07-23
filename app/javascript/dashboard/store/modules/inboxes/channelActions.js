@@ -21,7 +21,27 @@ export const buildInboxData = inboxParams => {
     }
   }
   Object.keys(channelParams).forEach(key => {
-    formData.append(`channel[${key}]`, channel[key]);
+    const value = channel[key];
+    if (
+      key === 'pre_chat_form_options' &&
+      typeof value === 'object' &&
+      value !== null
+    ) {
+      // Handle nested pre_chat_form_options object
+      Object.keys(value).forEach(subKey => {
+        const subValue = value[subKey];
+        if (typeof subValue === 'object' && subValue !== null) {
+          formData.append(
+            `channel[${key}][${subKey}]`,
+            JSON.stringify(subValue)
+          );
+        } else {
+          formData.append(`channel[${key}][${subKey}]`, subValue);
+        }
+      });
+    } else {
+      formData.append(`channel[${key}]`, value);
+    }
   });
   return formData;
 };

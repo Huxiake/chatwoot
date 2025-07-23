@@ -58,6 +58,12 @@ WORKDIR /app
 
 COPY Gemfile Gemfile.lock ./
 
+# 使用国内 Ruby 镜像源（加速安装 gem）
+RUN gem sources --clear-all \
+  && gem sources --add https://gems.ruby-china.com \
+  && gem sources --remove https://rubygems.org \
+  && gem sources -l
+
 # natively compile grpc and protobuf to support alpine musl (dialogflow-docker workflow)
 # https://github.com/googleapis/google-cloud-ruby/issues/13306
 # adding xz as nokogiri was failing to build libxml

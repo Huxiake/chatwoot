@@ -43,6 +43,11 @@
     "COMPANY_FROM": "from",
     "BOT": "Bot"
   },
+  "WIDGET": {
+    "MORE_CONTACT_WAYS": "💬 More ways to reach us",
+    "WHATSAPP": "WhatsApp",
+    "TELEGRAM": "Telegram"
+  },
   "BUBBLE": {
     "LABEL": "Chat with us"
   },

@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  app:
+    image: chatwoot:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - RAILS_ENV=production
+      - SECRET_KEY_BASE=a_very_long_secret_key_base_for_production_use_only_12345678901234567890
+      - FRONTEND_URL=http://localhost:3000
+      - POSTGRES_HOST=localhost
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DATABASE=chatwoot_production
+      - REDIS_URL=redis://localhost:6379
+      - RAILS_SERVE_STATIC_FILES=true
+    command: >
+      sh -c "
+        echo 'Starting Chatwoot application...' &&
+        bundle exec puma -C config/puma.rb
+      "

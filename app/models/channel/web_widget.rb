@@ -32,7 +32,7 @@ class Channel::WebWidget < ApplicationRecord
   self.table_name = 'channel_web_widgets'
   EDITABLE_ATTRS = [:website_url, :widget_color, :welcome_title, :welcome_tagline, :reply_time, :pre_chat_form_enabled,
                     :continuity_via_email, :hmac_mandatory,
-                    { pre_chat_form_options: [:pre_chat_message, :require_email,
+                    { pre_chat_form_options: [:pre_chat_message, :require_email, :ws_link, :tg_link,
                                               { pre_chat_fields:
                                                 [:field_type, :label, :placeholder, :name, :enabled, :type, :enabled, :required,
                                                  :locale, { values: [] }, :regex_pattern, :regex_cue] }] },
@@ -82,7 +82,13 @@ class Channel::WebWidget < ApplicationRecord
   def validate_pre_chat_options
     return if pre_chat_form_options.with_indifferent_access['pre_chat_fields'].present?
 
-    self.pre_chat_form_options = {
+    puts '--- VALIDATE_PRE_CHAT_OPTIONS CALLED ---'
+    puts "Current options: #{pre_chat_form_options.inspect}"
+
+    # 保留现有的选项，只设置缺失的默认值
+    current_options = pre_chat_form_options.with_indifferent_access
+
+    default_options = {
       pre_chat_message: 'Share your queries or comments here.',
       pre_chat_fields: [
         {
@@ -96,6 +102,12 @@ class Channel::WebWidget < ApplicationRecord
         }
       ]
     }
+
+    # 合并现有选项和默认选项，保留 ws_link 和 tg_link
+    merged_options = default_options.merge(current_options)
+    self.pre_chat_form_options = merged_options
+
+    puts "Merged options: #{merged_options.inspect}"
   end
 
   def create_contact_inbox(additional_attributes = {})

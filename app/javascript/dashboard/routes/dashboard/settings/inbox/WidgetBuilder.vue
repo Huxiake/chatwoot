@@ -34,6 +34,8 @@ export default {
       websiteName: '',
       welcomeHeading: '',
       welcomeTagline: '',
+      wsLink: '',
+      tgLink: '',
       replyTime: 'in_a_few_minutes',
       avatarFile: null,
       avatarUrl: '',
@@ -171,6 +173,8 @@ export default {
       this.color = widget_color;
       this.replyTime = reply_time;
       this.avatarUrl = avatar_url;
+      this.wsLink = this.inbox?.pre_chat_form_options?.ws_link || '';
+      this.tgLink = this.inbox?.pre_chat_form_options?.tg_link || '';
 
       const savedInformation = this.getSavedInboxInformation();
       if (savedInformation) {
@@ -243,6 +247,11 @@ export default {
             welcome_title: this.welcomeHeading,
             welcome_tagline: this.welcomeTagline,
             reply_time: this.replyTime,
+            pre_chat_form_options: {
+              ...(this.inbox.channel?.pre_chat_form_options || {}),
+              ws_link: this.wsLink,
+              tg_link: this.tgLink,
+            },
           },
         };
         if (this.avatarFile) {
@@ -303,6 +312,7 @@ export default {
             />
             <woot-input
               v-model="welcomeHeading"
+              name="welcome_heading"
               :label="
                 $t(
                   'INBOX_MGMT.WIDGET_BUILDER.WIDGET_OPTIONS.WELCOME_HEADING.LABEL'
@@ -313,6 +323,18 @@ export default {
                   'INBOX_MGMT.WIDGET_BUILDER.WIDGET_OPTIONS.WELCOME_HEADING.PLACE_HOLDER'
                 )
               "
+            />
+            <woot-input
+              v-model="wsLink"
+              name="ws_link"
+              label="WhatsApp Link"
+              placeholder="Enter WhatsApp Link"
+            />
+            <woot-input
+              v-model="tgLink"
+              name="tg_link"
+              label="Telegram Link"
+              placeholder="Enter Telegram Link"
             />
             <Editor
               v-model="welcomeTagline"

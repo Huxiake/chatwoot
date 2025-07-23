@@ -5,6 +5,7 @@ class Api::V1::Accounts::InboxesController < Api::V1::Accounts::BaseController
   before_action :validate_limit, only: [:create]
   # we are already handling the authorization in fetch inbox
   before_action :check_authorization, except: [:show]
+  before_action :parse_pre_chat_form_options, only: [:update]
 
   def index
     @inboxes = policy_scope(Current.account.inboxes.order_by_name.includes(:channel, { avatar_attachment: [:blob] }))
@@ -42,6 +43,13 @@ class Api::V1::Accounts::InboxesController < Api::V1::Accounts::BaseController
   end
 
   def update
+    if params[:channel].present? && params[:channel][:pre_chat_form_options].is_a?(String)
+      begin
+        params[:channel][:pre_chat_form_options] = JSON.parse(params[:channel][:pre_chat_form_options])
+      rescue JSON::ParserError
+        # Ignore if it's not valid JSON, let the default validation handle it.
+      end
+    end
     inbox_params = permitted_params.except(:channel, :csat_config)
     inbox_params[:csat_config] = format_csat_config(permitted_params[:csat_config]) if permitted_params[:csat_config].present?
     @inbox.update!(inbox_params)
@@ -115,8 +123,34 @@ class Api::V1::Accounts::InboxesController < Api::V1::Accounts::BaseController
   end
 
   def reauthorize_and_update_channel(channel_attributes)
+    puts '--- CHANNEL ATTRIBUTES ---'
+    puts channel_attributes.inspect
+
+    filtered_params = permitted_params(channel_attributes)[:channel]
+    puts '--- FILTERED CHANNEL PARAMS ---'
+    puts filtered_params.inspect
+
+    # 手动处理 pre_chat_form_options 的更新
+    if filtered_params[:pre_chat_form_options].present?
+      current_options = @inbox.channel.pre_chat_form_options || {}
+      new_options = current_options.merge(filtered_params[:pre_chat_form_options].to_h)
+      filtered_params[:pre_chat_form_options] = new_options
+
+      puts '--- MERGED PRE_CHAT_FORM_OPTIONS ---'
+      puts new_options.inspect
+    end
+
     @inbox.channel.reauthorized! if @inbox.channel.respond_to?(:reauthorized!)
-    @inbox.channel.update!(permitted_params(channel_attributes)[:channel])
+
+    # 尝试分步骤更新
+    @inbox.channel.assign_attributes(filtered_params)
+    puts '--- BEFORE SAVE - CHANNEL ATTRIBUTES ---'
+    puts @inbox.channel.attributes.inspect
+
+    @inbox.channel.save!
+
+    puts '--- AFTER UPDATE - PRE_CHAT_FORM_OPTIONS ---'
+    puts @inbox.channel.reload.pre_chat_form_options.inspect
   end
 
   def update_channel_feature_flags
@@ -172,6 +206,16 @@ class Api::V1::Accounts::InboxesController < Api::V1::Accounts::BaseController
       channel_type.constantize::EDITABLE_ATTRS.presence
     else
       []
+    end
+  end
+
+  def parse_pre_chat_form_options
+    return unless params.dig(:channel, :pre_chat_form_options).is_a?(String)
+
+    begin
+      params[:channel][:pre_chat_form_options] = JSON.parse(params[:channel][:pre_chat_form_options])
+    rescue JSON::ParserError
+      # Ignore if it's not valid JSON, let the default validation handle it.
     end
   end
 end
