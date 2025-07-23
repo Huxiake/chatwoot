@@ -136,7 +136,6 @@
     "postcss-preset-env": "^8.5.1",
     "prettier": "^3.3.3",
     "prosemirror-model": "^1.22.3",
-    "sass-embedded": "^1.89.2",
     "size-limit": "^8.2.4",
     "tailwindcss": "^3.4.13",
     "vite": "^5.4.19",
@@ -168,5 +167,5 @@
       "scss-lint"
     ]
   },
-  "packageManager": "pnpm@10.2.0+sha512.0d27364e0139c6aadeed65ada153135e0ca96c8da42123bd50047f961339dc7a758fc2e944b428f52be570d1bd3372455c1c65fa2e7aa0bfbf931190f9552001"
+  "packageManager": "pnpm@10.13.1"
 }

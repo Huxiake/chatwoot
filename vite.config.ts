@@ -44,6 +44,16 @@ if (isLibraryMode) {
 
 export default defineConfig({
   plugins: plugins,
+  css: {
+    preprocessorOptions: {
+      scss: {
+        includePaths: [
+          path.resolve(__dirname, 'app/javascript'),
+          path.resolve(__dirname, 'app/javascript/widget/assets/scss'),
+        ],
+      },
+    },
+  },
   build: {
     rollupOptions: {
       output: {
