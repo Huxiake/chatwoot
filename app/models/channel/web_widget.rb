@@ -82,9 +82,6 @@ class Channel::WebWidget < ApplicationRecord
   def validate_pre_chat_options
     return if pre_chat_form_options.with_indifferent_access['pre_chat_fields'].present?
 
-    puts '--- VALIDATE_PRE_CHAT_OPTIONS CALLED ---'
-    puts "Current options: #{pre_chat_form_options.inspect}"
-
     # 保留现有的选项，只设置缺失的默认值
     current_options = pre_chat_form_options.with_indifferent_access
 
@@ -106,8 +103,6 @@ class Channel::WebWidget < ApplicationRecord
     # 合并现有选项和默认选项，保留 ws_link 和 tg_link
     merged_options = default_options.merge(current_options)
     self.pre_chat_form_options = merged_options
-
-    puts "Merged options: #{merged_options.inspect}"
   end
 
   def create_contact_inbox(additional_attributes = {})
